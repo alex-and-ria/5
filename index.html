@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>lab2</title>
+	<link type="text/css" rel="stylesheet" href="/stylesheets/main.css" />
+</head>
+	<body>
+	<!--
+	{% for greeting in greetings %}
+		{% if greeting.author %}
+			<b>{{ greeting.author.nickname }}</b> wrote:
+		{% else %}
+			An anonymous person wrote:
+		{% endif %}
+	<blockquote>{{ greeting.content|escape }}</blockquote>
+	{% endfor %}
+	-->
+
+	<p id='hi_m'>hi, {{user}}</p>
+	
+	<form action "/add_book" method="post">
+		book_name= <input type="text" name="n_book_name">
+		author= <input type="text" name="n_book_author">
+		date= <input type="date" name="n_book_date">
+		<input type="submit" value="add_book">
+	</form>
+	<form action="/delete_book" method="post">
+		index= <input type="number" name=d_index>
+		<input type="submit" value="delete">
+	</form>
+	<form action="/edit_book" method="post">
+		index= <input type="number" name=d_index>
+		<input type="submit" value="edit">
+	</form>
+	<p>library_list:</p>
+	<table id='full_t'>
+		<tr id='tible_t'><td>book_id</td><td>book_name</td><td>authot</td><td>book_date</td><td>book_add_date</td></tr>
+		<tr><td>0</td><td>tstb</td><td>tsta</td><td>tstd1</td><td>tstd2</td></tr>
+	</table>
+	<a href="{{ url }}">{{ url_linktext }}</a>
+	</body>
+</html>

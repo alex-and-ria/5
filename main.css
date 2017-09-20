@@ -1,0 +1,26 @@
+#hi_m{
+	text-align: center;
+}
+
+#full_t{
+	max-width:100%;
+	white-space:nowrap;
+}
+
+#tible_t{
+	text-align: center;
+}
+
+table {
+    border-collapse: collapse;
+}
+
+table, th, td {
+    border: 1px solid black;
+}
+
+td{
+    border:1px solid #000;
+    width:1%;
+    white-space:nowrap;
+}
