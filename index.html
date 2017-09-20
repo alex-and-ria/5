@@ -18,7 +18,7 @@
 
 	<p id='hi_m'>hi, {{user}}</p>
 	
-	<form action "/add_book" method="post">
+	<form action="/add_book" method="post">
 		book_name= <input type="text" name="n_book_name">
 		author= <input type="text" name="n_book_author">
 		date= <input type="date" name="n_book_date">
@@ -34,8 +34,10 @@
 	</form>
 	<p>library_list:</p>
 	<table id='full_t'>
-		<tr id='tible_t'><td>book_id</td><td>book_name</td><td>authot</td><td>book_date</td><td>book_add_date</td></tr>
-		<tr><td>0</td><td>tstb</td><td>tsta</td><td>tstd1</td><td>tstd2</td></tr>
+		<tr id='tible_t'><td>book_id</td><td>book_name</td><td>author</td><td>book_date</td><td>book_add_date</td></tr>
+		{%for book in books %}
+		<tr><td>{{book.id_b}}</td><td>{{book.name_b}}</td><td>{{book.author_b}}</td><td>{{book.date_b}}</td><td>{{book.date_b_add}}</td></tr>
+		{% endfor %}
 	</table>
 	<a href="{{ url }}">{{ url_linktext }}</a>
 	</body>
