@@ -29,14 +29,26 @@
 		<input type="submit" value="delete">
 	</form>
 	<form action="/edit_book" method="post">
-		index= <input type="number" name=d_index>
+		index= <input type="number" name=e_index>
 		<input type="submit" value="edit">
 	</form>
+	<!--<p>{{unicode_date}}={{edit_i}}</p>-->
 	<p>library_list:</p>
 	<table id='full_t'>
 		<tr id='tible_t'><td>book_id</td><td>book_name</td><td>author</td><td>book_date</td><td>book_add_date</td></tr>
 		{%for book in books %}
-		<tr><td>{{book.id_b}}</td><td>{{book.name_b}}</td><td>{{book.author_b}}</td><td>{{book.date_b}}</td><td>{{book.date_b_add}}</td></tr>
+			{%if book.id_b == edit_i%}
+				<form action="/edit_ok" method="post">
+					<tr><td>{{book.id_b}}</td>
+					<td>book_name= <input type="text" name="u_book_name" value="{{book.name_b}}"></td>
+					<td>author= <input type="text" name="u_book_author" value="{{book.author_b}}"></td>
+					<td>date= <input type="date" name="u_book_date" value="{{unicode_date}}"></td>
+					<td><input type="submit" value="ok"></td>
+					</tr>
+				</form>
+			{%else%}
+				<tr><td>{{book.id_b}}</td><td>{{book.name_b}}</td><td>{{book.author_b}}</td><td>{{book.date_b}}</td><td>{{book.date_b_add}}</td></tr>
+			{%endif%}
 		{% endfor %}
 	</table>
 	<a href="{{ url }}">{{ url_linktext }}</a>
