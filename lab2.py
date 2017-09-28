@@ -108,13 +108,15 @@ class MainPage(webapp2.RequestHandler):
         	print 'unicode_date={} (type()={})'.format(unicode_date,type(unicode_date))
         	editing=False
         
+        unicode_curr_date=unicode(datetime.now())
         template_values = {
         	'user': user,
             'url': url,
             'url_linktext': url_linktext,
             'books': books,
             'unicode_date': unicode_date[0:10],
-            'edit_i': edit_i
+            'edit_i': edit_i,
+            'unicode_curr_date': unicode_curr_date[0:10]
         }        
         path = os.path.join(os.path.dirname(__file__), 'index.html')
         self.response.out.write(template.render(path, template_values))

@@ -21,7 +21,7 @@
 	<form action="/add_book" method="post">
 		book_name= <input type="text" name="n_book_name">
 		author= <input type="text" name="n_book_author">
-		date= <input type="date" name="n_book_date">
+		date= <input type="date" name="n_book_date" value="{{unicode_curr_date}}">
 		<input type="submit" value="add_book">
 	</form>
 	<form action="/delete_book" method="post">

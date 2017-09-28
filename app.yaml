@@ -5,5 +5,7 @@ threadsafe: true
 handlers:
 - url: /stylesheets
   static_dir: stylesheets
-- url: /.*
+- url: /Message_Services.*
+  script: services.app
+- url: .*
   script: lab2.app
