@@ -7,9 +7,27 @@ d=0.85
 strt_pr=(1-d) #d=0.85 => strt_pr=(1-d)=(1-0.85)=0.15;
 bc_strt_pr=sc.broadcast(strt_pr)
 
+N=1
+bc_N=sc.broadcast(N)
+
 def fmparser(line):
 	n_links=len(line.split())-1# 1st word is a page name
 	line+=' '+str(bc_strt_pr.value)+' '+str(n_links)
+	return [line]
+	
+def fmparser1(line):
+	n_links=len(line.split())-1# 1st word is a page name
+	cr=0.; i=0;
+	with open("../lab2/outp_f.txt","rb") as fin:
+		for fline in fin:
+			for fword in fline.split():
+				#print "fword=%s, i=%d" % (fword, i)
+				if(fword == (line.split())[0]): #find fword whuch name in given page name;
+					cr=float((fline.split())[i+1])
+					break;
+				i+=1;
+	fin.close()
+	line+=' '+str(cr)+' '+str(n_links)
 	return [line]
 	
 def fmpremap(line):
@@ -24,6 +42,9 @@ def fmpremap(line):
 	
 def msep_keyes(line):
 	l2map=line.split('\t')
+	with open("../lab2/outp_f.txt","wb") as fout:# erasing file's content to put new values in it;
+		pass
+	fout.close()
 	return [l2map[0], l2map[1]]
 	
 def mcalc(inp_tuple):
@@ -36,8 +57,16 @@ def mcalc(inp_tuple):
 			#print 'tot=%f, float(arr_nums[%d])=%f, float(arr_nums[%d])=%f' % (tot,i,float(arr_nums[i]),(i+1),float(arr_nums[i+1]))
 		i=i+1		
 	tot=tot*(1-bc_strt_pr.value) + bc_strt_pr.value
+	with open("../lab2/outp_f.txt","a+b") as fout:
+		fout.write(str(page)+' '+str(tot)+' ')
+	fout.close()
 	return [page, tot]
 	
 rdd=sc.textFile("../lab2/input.txt").flatMap(fmparser).flatMap(fmpremap).map(msep_keyes).reduceByKey(lambda a,b: str(a)+' '+str(b)).map(mcalc)
+rdd.collect()
 
+for itr in range(N):
+	rdd=sc.textFile("../lab2/input.txt").flatMap(fmparser1).flatMap(fmpremap).map(msep_keyes).reduceByKey(lambda a,b: str(a)+' '+str(b)).map(mcalc)
+	
+rdd=sc.textFile("../lab2/input.txt").flatMap(fmparser1).flatMap(fmpremap).map(msep_keyes).reduceByKey(lambda a,b: str(a)+' '+str(b)).map(mcalc)
 rdd.collect()
