@@ -68,14 +68,42 @@ def group_f(x,y):
 			print '\n\nwarning\n\n'
 		else:
 			print '\nx=RT1; y=?\n'
-			if y[len(y)-3:len(y)]=='RT1':
-				print '\n\nwarning\n\n'
 	else:
 		print '\nx=?; y=?\n'
 		print(x)
 		print(y)
 		return
+	#print 'ret=',x,y,ret,'\n'
 	return ret
+	
+def ptf(inp_tuple):
+	lid=inp_tuple[0]
+	l_data=inp_tuple[1]
+	is_str=False
+	if l_data==None:
+		print 'l_data==None'
+		return
+	print 'inp'+l_data+'\n'
+	if l_data[len(l_data)-3:len(l_data)]=='RT2':
+		print 'ptf: warning l_data=%s' % l_data
+		return
+	print 'l_data(:11)=%s' % l_data[:11]
+	try:
+		float(l_data[:11])
+	except ValueError:
+		is_str=True
+	with open("../lab3/outp_f.txt","ab") as fout:
+		if is_str:
+			fout.write(l_data[1:len(l_data)]+'\n')
+		else:
+			i=0; spl=''
+			while i<30:
+				spl+=' '
+				i+=1
+			fout.write(spl+' '+l_data[1:len(l_data)]+'\n')
+	fout.close()		
+	return inp_tuple
 
-rdd = sc.wholeTextFiles("../lab3/input").flatMap(get_lines_ff).flatMap(lambda a: a.split('@')).flatMap(lambda elem: [(elem[:10],elem[10:])]).reduceByKey(group_f)
+rdd = sc.wholeTextFiles("../lab3/input").flatMap(get_lines_ff).flatMap(lambda a: a.split('@')).flatMap(lambda elem: [(elem[:10],elem[10:])]).reduceByKey(group_f).map(ptf); rdd.collect()
 rdd.take(10)
+rdd.collect()
