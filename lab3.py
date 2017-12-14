@@ -46,24 +46,24 @@ def get_lines_ff(pair):
 	
 def group_f(x,y):
 	if x==None or y==None:
-		print 'none' (str(x),str(y))
+		print 'none'
 		return
 	ret=''
 	if x[len(x)-3:len(x)]=='RT2':
 		if y[len(y)-3:len(y)]=='RT2':
 			x=x[:len(x)-3]#clear 'RT2' string;
-			ret=x+y
+			ret=x+y#+' x=rt2; y=rt2'
 		elif y[len(y)-3:len(y)]=='RT1':
 			y=y[:len(y)-3]
-			x=x[:len(y)-3]+'RT1'
+			x=x[:len(x)-3]+'RT1'#+' x=rt2, y=rt1'
 			ret=y+x#append rt2 in the end of rt1
 		else:
 			print '\nx=RT2; y=?\n'
 	elif x[len(x)-3:len(x)]=='RT1':
 		if y[len(y)-3:len(y)]=='RT2':
 			x=x[:len(x)-3]
-			y=y[:len(x)-3]+'RT1'
-			ret=x+y
+			y=y[:len(y)-3]+'RT1'
+			ret=x+y#+' x=rt1, y=rt2'
 		elif y[len(y)-3:len(y)]=='RT1':
 			print '\n\nwarning\n\n'
 		else:
@@ -100,7 +100,7 @@ def ptf(inp_tuple):
 			while i<30:
 				spl+=' '
 				i+=1
-			fout.write(spl+' '+l_data[1:len(l_data)]+'\n')
+			fout.write(spl+l_data[0:len(l_data)]+'\n')
 	fout.close()		
 	return inp_tuple
 

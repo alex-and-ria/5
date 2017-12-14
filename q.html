@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <style>
+      /* Always set the map height explicitly to define the size of the div
+       * element that contains the map. */
+      #map {
+        height: 90%;
+      }
+      /* Optional: Makes the sample page fill the window. */
+      html, body {
+        height: 100%;
+        margin: 0;
+        padding: 0;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="map"></div>
+    <input type="file" id="fileinput" />
+    <script>
+      var map; var zoom_lvl=8;
+      function initMap() {
+        map = new google.maps.Map(document.getElementById('map'), {
+          zoom: zoom_lvl,
+          center: new google.maps.LatLng(+474,86549,-121,721695 ),
+          mapTypeId: 'terrain'
+        });	
+	  }
+		  
+		  	var contents;  
+		function readSingleFile(evt) {
+		//Retrieve the first (and only!) File from the FileList object
+		var f = evt.target.files[0]; 
+		if (f) {
+		  var r = new FileReader();
+		  r.onload = function(e) { 
+			  contents = e.target.result;
+			  console.log(typeof(contents))
+		    /*alert( "Got the file.n" 
+		          +"name: " + f.name + "n"
+		          +"type: " + f.type + "n"
+		          +"size: " + f.size + " bytesn"
+		          + "starts with: " + contents.substr(1, contents.indexOf("n"))
+		    );*/  
+		  }
+		  r.readAsText(f);
+		} else { 
+		  alert("Failed to load file");
+		}
+	  }
+	  document.getElementById('fileinput').addEventListener('change', readSingleFile, false);
+    </script>
+    <script async defer
+    src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDB3OTvr8oDKA0-2hhK2noATefSQ_HO4AQ&callback=initMap">
+    </script>
+     <p ondblclick="show_contents()">Double-click me</p>
+    <script>
+    	var fl_arr;
+    	function show_contents(){
+			console.log('hi'+contents.substr(0,10)+contents.split('\n').length+contents.split('\n')[0]);
+			fl_arr=contents.split('\n');
+			for(i=0;i<fl_arr.length; i++){
+				var lbl=fl_arr[i].substring(0,30);
+				var base_crds=new Array;
+					for(j=0;j<fl_arr[i].substring(31,72).split(' ').length;j++){
+						var pflt=(parseFloat(fl_arr[i].substring(31,72).split(' ')[j]));
+						if(j%2==0) pflt/=1000000;//Longitude; 10
+						else pflt/=100000;//Latitude; 9
+						base_crds.push(pflt);
+					}
+				if(i<10) console.log('lbl=',lbl.trim(),'base_crds=',base_crds+'q');
+				var crds_ll=new Array;
+				for(j=0;j<base_crds.length;j+=2){
+					var ll=new google.maps.LatLng(base_crds[j+1], base_crds[j])
+					crds_ll.push(ll);
+				}
+				var rect = new google.maps.Polygon({
+				paths: crds_ll,
+				strokeColor: '#00FF00',
+				strokeOpacity: 1,
+				strokeWeight: 10,
+				fillColor: '#FF0000',
+				fillOpacity: 0.35
+			  });
+			  rect.setMap(map);
+			  addMarker(crds_ll[0], map,lbl.trim());
+			  
+			  function addMarker(location, map,lbl) {
+				// Add the marker at the clicked location, and add the next-available label
+				// from the array of alphabetical characters.
+				var marker = new google.maps.Marker({
+				  position: location,
+				  label: lbl,//labels[labelIndex++ % labels.length],
+				  map: map
+				});
+			  }
+			    // Construct the polygon.
+			    var triangleCoords = [
+			{lat: 25.774, lng: -80.190},
+			{lat: 18.466, lng: -66.118},
+			{lat: 32.321, lng: -64.757}
+		  ];
+		  var bermudaTriangle = new google.maps.Polygon({
+			paths: triangleCoords,
+			strokeColor: '#00FF00',
+			strokeOpacity: 1,
+			strokeWeight: 1,
+			fillColor: '#0000FF',
+			fillOpacity: 0.35
+		  });
+		  bermudaTriangle.setMap(map);
+			}
+			
+		}
+    </script>
+    
+<!--<script type="text/javascript">
+
+</script>-->
+  </body>
+</html>
