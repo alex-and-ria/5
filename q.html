@@ -19,16 +19,16 @@
     <div id="map"></div>
     <input type="file" id="fileinput" />
     <script>
-      var map; var zoom_lvl=8;
+      var map; var zoom_lvl=9;
       function initMap() {
         map = new google.maps.Map(document.getElementById('map'), {
           zoom: zoom_lvl,
-          center: new google.maps.LatLng(+474,86549,-121,721695 ),
+          center: new google.maps.LatLng(+47.486549,-121.721695 ),
           mapTypeId: 'terrain'
         });	
 	  }
 		  
-		  	var contents;  
+		var contents;  
 		function readSingleFile(evt) {
 		//Retrieve the first (and only!) File from the FileList object
 		var f = evt.target.files[0]; 
@@ -37,6 +37,7 @@
 		  r.onload = function(e) { 
 			  contents = e.target.result;
 			  console.log(typeof(contents))
+			  show_contents();
 		    /*alert( "Got the file.n" 
 		          +"name: " + f.name + "n"
 		          +"type: " + f.type + "n"
@@ -48,13 +49,17 @@
 		} else { 
 		  alert("Failed to load file");
 		}
+		 map.addListener('zoom_changed', function() {
+			console.log('zoom=' + map.getZoom());
+			show_contents();
+		  });
 	  }
 	  document.getElementById('fileinput').addEventListener('change', readSingleFile, false);
     </script>
     <script async defer
     src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDB3OTvr8oDKA0-2hhK2noATefSQ_HO4AQ&callback=initMap">
     </script>
-     <p ondblclick="show_contents()">Double-click me</p>
+     <p ondblclick="show_zoom()">Double-click me</p>
     <script>
     	var fl_arr;
     	function show_contents(){
@@ -62,61 +67,60 @@
 			fl_arr=contents.split('\n');
 			for(i=0;i<fl_arr.length; i++){
 				var lbl=fl_arr[i].substring(0,30);
-				var base_crds=new Array;
+				var base_crds=new Array; var poly_crds=new Array;
 					for(j=0;j<fl_arr[i].substring(31,72).split(' ').length;j++){
 						var pflt=(parseFloat(fl_arr[i].substring(31,72).split(' ')[j]));
-						if(j%2==0) pflt/=1000000;//Longitude; 10
-						else pflt/=100000;//Latitude; 9
+						pflt/=1000000;//Longitude; 10
+						//else pflt/=100000;//Latitude; 9
 						base_crds.push(pflt);
+					}
+					if((fl_arr[i].length-3)>73){
+						for(j=0;j<fl_arr[i].substring(73,fl_arr[i].length-3).split(' ').length;j++){
+							var pflt=(parseFloat(fl_arr[i].substring(73,fl_arr[i].length-3).split(' ')[j]));
+							pflt/=1000000;
+							poly_crds.push(pflt);
+						}
+						if(i<10) console.log('poly_crds=', poly_crds);
 					}
 				if(i<10) console.log('lbl=',lbl.trim(),'base_crds=',base_crds+'q');
 				var crds_ll=new Array;
-				for(j=0;j<base_crds.length;j+=2){
-					var ll=new google.maps.LatLng(base_crds[j+1], base_crds[j])
+				for(j=0;j<poly_crds.length;j+=2){
+					var ll=new google.maps.LatLng(poly_crds[j+1], poly_crds[j])
 					crds_ll.push(ll);
+					//if(i<10) console.log("ll=",ll);
 				}
-				var rect = new google.maps.Polygon({
-				paths: crds_ll,
-				strokeColor: '#00FF00',
-				strokeOpacity: 1,
-				strokeWeight: 10,
-				fillColor: '#FF0000',
-				fillOpacity: 0.35
-			  });
-			  rect.setMap(map);
-			  addMarker(crds_ll[0], map,lbl.trim());
-			  
-			  function addMarker(location, map,lbl) {
+				var tmp_sq=Math.abs(base_crds[0]-base_crds[2])*Math.abs(base_crds[1]-base_crds[3])
+				var elem_sq=Math.abs(Math.log(tmp_sq)/Math.log(2))/200;
+				var thrh=1/(map.getZoom());
+				if(i<10) console.log('sq=',elem_sq,'thrh=',thrh,' sh=',elem_sq>=thrh);
+				if(elem_sq>=thrh||map.getZoom()==21){//21 -- max zoom;
+					var rect = new google.maps.Polygon({
+					paths: crds_ll,
+					strokeColor: '#FF0000',
+					strokeOpacity: 0.7,
+					strokeWeight: 1,
+					fillColor: '#00FF00',
+					fillOpacity: 0.35
+				  });
+				  rect.setMap(map);
+				  if(lbl.trim()) addMarker(crds_ll[0], map,lbl.trim());
+				}			  
+			  	function addMarker(location, map,lbl) {
 				// Add the marker at the clicked location, and add the next-available label
 				// from the array of alphabetical characters.
 				var marker = new google.maps.Marker({
 				  position: location,
 				  label: lbl,//labels[labelIndex++ % labels.length],
 				  map: map
-				});
-			  }
-			    // Construct the polygon.
-			    var triangleCoords = [
-			{lat: 25.774, lng: -80.190},
-			{lat: 18.466, lng: -66.118},
-			{lat: 32.321, lng: -64.757}
-		  ];
-		  var bermudaTriangle = new google.maps.Polygon({
-			paths: triangleCoords,
-			strokeColor: '#00FF00',
-			strokeOpacity: 1,
-			strokeWeight: 1,
-			fillColor: '#0000FF',
-			fillOpacity: 0.35
-		  });
-		  bermudaTriangle.setMap(map);
+					});
+			  	}
 			}
-			
 		}
     </script>
-    
-<!--<script type="text/javascript">
-
-</script>-->
+    <script>
+    function show_zoom(){
+    	console.log("zoom lvl=", map.getZoom());
+    }
+    </script>
   </body>
 </html>
