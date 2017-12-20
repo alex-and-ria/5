@@ -3,7 +3,6 @@
 
 module mul_add_acc (ina,inxni,clk,rst, res);
     parameter SZin=7;
-    parameter SZN=3;
     input [SZin:0] ina;
     input [SZin:0] inxni;
     input clk,rst;
