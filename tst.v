@@ -1,25 +1,30 @@
-`timescale 1 ns/ 1 ps
-module top();
-reg clk, nreset;
-initial $disply("Hello");
-initial
-begin
-clk=0;
-forever #5 clk=~clk;
-end
-initial
-begin
-nreset = 0;
-#25 nreset = 1;
-end
-initial
-begin
-repeat(10) @(posedge clk);
-$finish(1);
-end
-initial
-begin
-$dumpfile("wave.vcd");
-$dumpvars(0);
-end
+module test();
+
+  reg in1;
+  reg in2;
+  wire out;
+  // Инстанциировать тестируемый модуль
+  xor under_test(out, in1, in2);
+
+  initial begin
+      in1 = 0;
+      in2 = 0;
+    #1000 $check(out);
+
+      in1 = 1;
+      in2 = 0;
+    #1000 $check(out);
+
+      in1 = 0;
+      in2 = 1;
+    #1000 $check(out);
+
+      in1 = 1;
+      in2 = 1;
+    #1000 $check(out);
+
+    $finish;
+  end // initial
+ 	  
 endmodule
+
