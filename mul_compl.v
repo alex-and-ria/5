@@ -7,44 +7,56 @@ module mul_compl(sel, wrt, clk, nres, ready, wdata,rdata, addr_b);
     inout ready;
     input [SZin-1:0] wdata;
     input addr_b;//addr is 0 for operand1 or 1 for operand 2, so 1 bit for addres bus is enough;
-    output reg [2*SZin-1:0] rdata;
+    output reg [2*SZin-2:0] rdata;
     reg [SZin-1:0] memop [1:0];
+    reg [2*SZin-2:0] mout;
     integer i;
     
 task m_mul;
     input[SZin-1:0] in1,in2;
-    output [2*SZin-1:0] out;
-    reg [2*SZin-1:0] tmpres;
+    output [2*SZin-2:0] out;
+    reg [2*SZin-2:0] tmpres;
     integer j,k;
     begin
+        //$monitor("j=%d,k=%d,tmpres=%b,out=%b",j,k,tmpres,out);
+        $display("SZin=%d,in1=%b,in2=%b",SZin,in1,in2);
         tmpres=0;
-        for(j=0;j<2*SZin-1;j=i+1) begin
+        for(j=0;j<2*SZin-1;j=j+1) begin
+            //$display("j=%d",j);
             out[j]=0;//fill with zero;
         end
         for(j=SZin-2;j>=0;j=j-1) begin
+            $display("j=%d,out=%b,tmpres=%b",j,out,tmpres);
             if(in2[j]==0) begin
                 out=out<<1;
+                $display("j=%d,0_val: r_shift; out=",j,out);
             end else begin
-                for(k=2*SZin-1;k>=0;k=k-1) begin
+                for(k=2*SZin-2;k>=0;k=k-1) begin
                     if(k>SZin-1) begin
                         tmpres[k]=in1[SZin-1];//fill with sign;
                     end else begin
                         tmpres[k]=in1[k];
                     end
                 end
-                tmpres=tmpres<<(SZin-2-j);
-                out=out+tmpres;                
-            end            
+                //$display("j=%d,tmpres_bsh=%b",j,tmpres);
+                //tmpres=tmpres<<(SZin-2-j);
+                //$display("j=%d,tmpres_ash=%b",j,tmpres);
+                out=out+tmpres;  
+                $display("j=%d,out=%b",j,out);
+                if(j!=0) out=out<<1;             
+            end
+            $display("ei: j=%d,out=%b,tmpres=%b",j,out,tmpres);            
         end
         if(in2[SZin-1]==1) begin//correction;
-            for(j=0;j<SZin-1;j=j+1) begin
-                tmpres[j]=in1[j];
+            for(j=0;j<2*SZin-2;j=j+1) begin//tmpres saved from previous step;
+                tmpres[j]=!tmpres[j];
             end
-            tmpres=tmpres+1;
-            tmpres=tmpres<<SZin-1;//make complement;
+            tmpres=tmpres+1;//make complement;
+            tmpres=tmpres<<(SZin-1);
+            $display("corrected tmpres=%b, in1=%b",tmpres, in1);
             out=out+tmpres;
         end
-        $display("tsk");
+        $display("out=%b",out);
     end    
 endtask
     
@@ -72,7 +84,8 @@ endtask
                 end
                 is_ready=0; set_ready=1;//multiplying can take some time, so set ready to 0;
                 rdata=memop[0]*memop[1];//tmp; TODO;
-                $display("memop[0]=%d,memop[1]=%d,rdata=%d",memop[0],memop[1],rdata);
+                m_mul(memop[0],memop[1],mout);
+                $display("memop[0]=%d,memop[1]=%d,rdata=%d",memop[0],memop[1],mout);
                 is_ready=1;
             end
         end else begin
@@ -82,13 +95,13 @@ endtask
 endmodule
 
 module tst_mul_compl();
-    parameter SZin=3;
+    parameter SZin=5;
     reg is_ready,set_ready;
     reg sel,wrt,clk,nres;
     wire ready;
     reg [SZin-1:0] wdata;
     reg addr_b;//addr is 0 for operand1 or 1 for operand 2, so 1 bit for addres bus is enough;
-    wire [2*SZin-1:0] rdata;
+    wire [2*SZin-2:0] rdata;
     integer i;
     
     assign ready=(set_ready==1) ? is_ready: 1'bz;
@@ -98,18 +111,18 @@ module tst_mul_compl();
         #2 sel=1;
         #2 nres=0; is_ready=1; set_ready=1;//clear;
         #2 nres=1; set_ready=0;
-        for(i=0;i<3;i=i+1) begin
+        for(i=0;i<1;i=i+1) begin
             #2
             if(ready==0) begin
                 @(posedge clk);
             end  
-            set_ready=1; addr_b=0; wrt=1; wdata=$random; $display("wdata=%d", wdata);
+            set_ready=1; addr_b=0; wrt=1; wdata=5'b00010;/*$random;*/ $display("wdata=%d", wdata);
             #2 set_ready=0;
             #2
             if(ready==0) begin
                 @(posedge clk);
             end
-            set_ready=1; addr_b=1; wdata=$random; $display("wdata1=%d", wdata); set_ready=0;
+            set_ready=1; addr_b=1; wdata=5'b00101;/*$random;*/ $display("wdata1=%d", wdata); set_ready=0;
             #2
             if(ready==0) begin
                 @(posedge clk);
