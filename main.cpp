@@ -1,24 +1,32 @@
 #include <QGuiApplication>
 #include <QQmlApplicationEngine>
+#include <QtWidgets/QApplication>
 #include <QQmlContext>
+#include <QQmlComponent>
 #include "calc_dox.h"
 
 int main(int argc, char *argv[])
 {
     QCoreApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
-    QGuiApplication app(argc, argv);
+    QApplication app(argc, argv);
+    //QGuiApplication app(argc, argv);
 
     QQmlApplicationEngine engine;
-    QQmlContext *context = engine.rootContext();    // Создаём корневой контекст
+    //QQmlContext *context = engine.rootContext();    // Создаём корневой контекст
+    //QQmlComponent component(&engine_qml,QUrl::fromLocalFile("q1.qml"));
+    //QObject *root_qml_obj = component.create();
     QList<QObject*> dataList;
-    calc_dox calc(dataList,context);    // Создаём ядро приложения
+
+    calc_dox calc(dataList,&engine);    // Создаём ядро приложения
        /* Загружаем объект в контекст для установки соединения,
         * а также определяем имя, по которому будет происходить соединение
         * */
-    context->setContextProperty("calc", &calc);
-    context->setContextProperty("p_model", QVariant::fromValue(dataList));
+    engine.rootContext()->setContextProperty("calc", &calc);
+    calc.set_r_objects();
+    //context->setContextProperty("p_model", QVariant::fromValue(dataList));
 
-    engine.load(QUrl(QLatin1String("qrc:/main.qml")));
+
+
     if (engine.rootObjects().isEmpty())
         return -1;
 

@@ -14,8 +14,8 @@ class data_vars : public QObject
     Q_PROPERTY(QString param_units READ param_units CONSTANT)
 
 public:
-    data_vars(QString p_nm, double p_val, double lbnd, double tbnd, QString p_units, QObject* parent=0);
-    ~data_vars() {}
+    data_vars(QString p_nm, double* p_val, double lbnd, double tbnd, QString p_units, QObject* parent=0);
+    ~data_vars();
     QString param_nm() const;
     double param_val() const;
     double l_bound() const;
@@ -29,6 +29,7 @@ signals:
 private:
     QString m_param_nm;
     double m_param_val;
+    double* pm_param_val;
     double m_l_bound;
     double m_t_bound;
     QString m_param_units;

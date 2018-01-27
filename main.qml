@@ -5,18 +5,24 @@ import QtQuick.Layouts 1.0
 ApplicationWindow {
     visible: true
     width: 400
-    height: 120
+    height: 200
     title: qsTr("rgr")
     ListView{
         id: g_view
+        objectName: "mn"
         width: parent.width
-        height: parent.height
+        height: parent.height-parent.height*0.1
+        anchors.top: parent.top
+        anchors.left: parent.left
+        anchors.topMargin: parent.height*0.05
+        anchors.leftMargin: parent.width*0.01
+        interactive: false
         model: p_model
         delegate: Rectangle{
             id: rect
             width: childrenRect.width
             height: childrenRect.height
-            border.color: "red"
+            //border.color: "red"
             Label{
                 id: curr_lbl
                 text: model.modelData.param_nm+'='
@@ -45,6 +51,22 @@ ApplicationWindow {
             }
         }
 
+    }
+
+    Button{
+        text: "load graph1";
+        anchors.bottom: parent.bottom
+        anchors.left: parent.left
+        anchors.bottomMargin: parent.height*0.05
+        anchors.leftMargin: parent.width*0.01
+        MouseArea{
+            anchors.fill: parent
+            onClicked:{
+                console.log("ldr");
+                calc.set_points();
+                //ldr.source="q1.qml";
+            }
+        }
     }
 
   /*  ListView{
@@ -93,5 +115,12 @@ ApplicationWindow {
             console.log("getText(0,20)=",getText(0,20)," parseFloat(getText(0,20))=",parseFloat(getText(0,20)));
         }
     }*/
-
+    Loader{
+        id:ldr;
+        anchors.fill: parent;
+        Component.onCompleted:{//dubug mode;
+            //calc.set_points();
+            source="q1.qml";
+        }
+    }
 }
