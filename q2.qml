@@ -7,10 +7,11 @@ Item {
     height: 200
     visible: true
     Rectangle{width: parent.width; height: parent.height; color: "white"}//clearing background;
-    property var points: 0
+    property var lst_model: l_model
+    property int cnt: 0
     ChartView {
-        title: "Vth(Nsub); dox=const"
-        objectName: "graph1"
+        title: "Vth(Vsub); dox=const"
+        objectName: "graph2"
         width: parent.width
         height: parent.height*0.8
         anchors.top: parent.top
@@ -21,20 +22,24 @@ Item {
         legend.alignment: Qt.AlignBottom
         ValueAxis {
             id: axisX
-            min: getbnd(0,0)
-            max: getbnd(1,0)
+            min: lst_model.xmin
+            max: lst_model.xmax
             tickCount: ((parent.width/100)>2) ? parent.width/100 : 2
+            Component.onCompleted: {
+                console.log("x: min=",lst_model.xmin,"max=",lst_model.xmax);
+                console.log("y: min=",lst_model.ymin,"max=",lst_model.ymax);
+            }
         }
         ValueAxis {
             id: axisY
-            min: getbnd(0,1);
-            max: getbnd(1,1);
+            min: lst_model.ymin
+            max: lst_model.ymax
             tickCount: ((parent.height/100)>2) ? parent.height/100 : 2
         }
         SplineSeries {
-            id: graph_Vth
-            objectName: "g1_series"
-            name: "Vth"
+            id: graph_Vth1
+            objectName: "g2_series"
+            name: "Vth2"
             axisX: axisX
             axisY: axisY
             onHovered: {
@@ -45,17 +50,22 @@ Item {
             }
         }
     }
-    Component.onCompleted: {
-        if(points==0)
-            points=calc.g1_points;
-        for(var i=0;i<points.length/2;i++){
-            console.log(i,' ',points[2*i],' ', points[2*i+1]);
-            graph_Vth.append(points[2*i],points[2*i+1]);
-        }
+    ListView{
+        width: 0
+        height: 0
+        model: l_model
+        delegate:
+            Rectangle {
+                id: hidden_rect
+                Component.onCompleted: {
+                    console.log(cnt," coords: ",x_coord,' ', y_coord);
+                    graph_Vth1.append(x_coord,y_coord);
+                    cnt++;
+                }
+            }
     }
-
     Rectangle{
-        id: rectq1
+        id: rectq2
         width: parent.width
         height: parent.height*0.1;
         anchors{
@@ -63,7 +73,8 @@ Item {
             bottomMargin: parent.height*0.1
         }
         color: "white"
-        border.color: "black"
+        //border.color: "black"
+
         Text {
             id: txtftst
             width: parent.width
@@ -78,10 +89,10 @@ Item {
         }
     }
     Button {
-        text: "load graph2";
+        text: "load graph1";
         height: parent*(0.1-2*0.05)
         anchors{
-            top: rectq1.bottom
+            top: rectq2.bottom
             left: parent.left
             topMargin: parent.height*0.05
             bottomMargin: parent.height*0.05
@@ -91,28 +102,12 @@ Item {
             anchors.fill: parent
             onClicked:{
                 console.log("ldr");
-                ldr1.source="q2.qml";
+                ldr2.source="q1.qml";
             }
         }
     }
     Loader{
-        id:ldr1;
+        id:ldr2;
         anchors.fill: parent;
-    }
-    function getbnd(flmax,flpos){
-        if(points==0)
-            points=calc.g1_points;
-        var retval=points[flpos];
-        for(var i=0;i<points.length/2;i++){
-            if(flmax&&points[2*i+flpos]>retval){
-                retval=points[2*i+flpos];
-            }
-            else if(!flmax&&points[2*i+flpos]<retval){
-                retval=points[2*i+flpos];
-            }
-            console.log('getbnd ::',i,' ',2*i+flpos,points[2*i+flpos])
-        }
-        console.log("getbnd: ",retval,' ',flpos)
-        return retval;
     }
 }

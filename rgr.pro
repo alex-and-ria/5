@@ -4,7 +4,8 @@ CONFIG += c++11
 
 SOURCES += main.cpp \
     calc_dox.cpp \
-    data_vars.cpp
+    data_vars.cpp \
+    list_model.cpp
 
 RESOURCES += qml.qrc
 
@@ -32,4 +33,5 @@ else: unix:!android: target.path = /opt/$${TARGET}/bin
 
 HEADERS += \
     calc_dox.h \
-    data_vars.h
+    data_vars.h \
+    list_model.h

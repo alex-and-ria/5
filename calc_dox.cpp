@@ -16,13 +16,14 @@ calc_dox::calc_dox(QList<QObject *> &in_dataList, QQmlApplicationEngine* p_engin
     connect(this,&calc_dox::doxChanged,this,&calc_dox::ondoxCgd);
     set_model(/*in_dataList*/);
     in_dataList=dataList;
-    for(unsigned int i=0;i<dataList.size()-1;i++){
+    for(unsigned int i=0;i<(unsigned int)dataList.size()-1;i++){
         connect(qobject_cast<data_vars*> (dataList.at(i)), &data_vars::param_valChanged,
                 this,&calc_dox::calc);
     }
     qml_cntxt=(p_engine->rootContext());
     //qml_obj1=p_qml_obj1;
     cnt=0;
+    num_points=50; m_m_list=new list_model(num_points+1);//from 0 to num_points it is num_points+1 points;
     calc();
     set_points();
     pm_engine=p_engine;
@@ -106,6 +107,7 @@ void calc_dox::set_points()
     chart->addSeries(series);*/
     QDebug debug=qDebug();
     _g1_points.clear();
+    m_m_list->add_pnt(QPointF(),true);
 
     QFile fl("./src1.txt"); QFile fl1("./res1.txt"); QFile fl2("./res2.txt"); QFile fl3("./src2.txt");
     if(!fl.open(QIODevice::Truncate|QIODevice::WriteOnly)
@@ -118,7 +120,7 @@ void calc_dox::set_points()
 
     QDataStream fl_stream(&fl),fl1_stream(&fl1),fl2_stream(&fl2),fl3_stream(&fl3);
     *Vth=0.5;// *Nsub=1e14;
-    for(*Nsub=1e14;*Nsub<1e16;*Nsub+=(1e16-1e14)/50){
+    for(*Nsub=1e14;*Nsub<1e16;*Nsub+=(1e16-1e14)/(num_points+0.0)){
         fl_stream<<QString::number(*Nsub).toStdString().c_str()<<'\n';
         //*qb=-sqrt(2*qe*(*esub)*e0*(*Nsub)*fabs((*Vsub)-2*(*phiF)*qe));
         double d_tmp=(*phims)*qe-2*(*phiF)*qe+((*dox)*
@@ -132,16 +134,19 @@ void calc_dox::set_points()
                             (sqrt(fabs(-2*(*phiF)*qe+(*Vsub)))-sqrt(fabs(-2*(*phiF)*qe)))
                             )/((*eox)*e0)).toStdString().c_str()<<'\n';
     }
-    *Vth=0.5;// *Nsub=1e14;
-    for((*Vsub)=0;(*Vsub)<10;(*Vsub)+=(10-0)/50.){
+    *Vth=0.5; *Nsub=1e14;
+    for((*Vsub)=0;(*Vsub)<10;(*Vsub)+=(10-0)/(num_points+0.0)){
         fl3_stream<<QString::number((*Vsub)).toStdString().c_str()<<'\n';
         *qb=-sqrt(2*qe*(*esub)*e0*(*Nsub)*fabs((*Vsub)-2*(*phiF)*qe));
-        fl2_stream<<QString::number(
-                        (*phims)*qe-2*(*phiF)*qe+((*dox)*
-                            sqrt(fabs(2*qe*(*eox)*e0*(*Nsub)))*
-                            (sqrt(fabs(-2*(*phiF)*qe+(*Vsub)))-sqrt(fabs(-2*(*phiF)*qe)))
-                            )/((*eox)*e0)).toStdString().c_str()<<'\n';
+        double d_tmp=(*phims)*qe-2*(*phiF)*qe+((*dox)*
+            sqrt(fabs(2*qe*(*eox)*e0*(*Nsub)))*
+            (sqrt(fabs(-2*(*phiF)*qe+(*Vsub)))-sqrt(fabs(-2*(*phiF)*qe)))
+            )/((*eox)*e0);
+        m_m_list->add_pnt(QPointF(*Vsub,d_tmp),false);
+        fl2_stream<<QString::number(d_tmp).toStdString().c_str()<<'\n';
     }
+    m_m_list->set_bnds();
+    qml_cntxt->setContextProperty("l_model",m_m_list);
     fl.close(); fl1.close(); fl2.close(); fl3.close();
     qDebug()<<Q_FUNC_INFO;
     if(_g1_points.empty())

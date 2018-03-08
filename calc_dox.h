@@ -9,6 +9,7 @@
 #include <QChartView>
 #include <QPointF>
 #include "data_vars.h"
+#include "list_model.h"
 
 class calc_dox : public QObject
 {
@@ -44,8 +45,10 @@ private:
     QQmlContext* qml_cntxt;
     QList<QObject *> dataList;
     QQmlApplicationEngine* pm_engine;
-    int cnt;
+    int cnt;//for debugging purpose;
+    unsigned int num_points;
     QVariantList _g1_points;
+    list_model* m_m_list;
 };
 
 //QList<QObject*> calc_dox::dataList;
